@@ -1,0 +1,40 @@
+{
+  "name": "platform-e2e",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "apps/platform-e2e/src",
+  "targets": {
+    "e2e": {
+      "executor": "@nx/cypress:cypress",
+      "options": {
+        "cypressConfig": "apps/platform-e2e/cypress.config.ts",
+        "testingType": "e2e",
+        "devServerTarget": "platform:serve"
+      },
+      "configurations": {
+        "production": {
+          "devServerTarget": "platform:serve:production"
+        },
+        "ci": {
+          "devServerTarget": "platform:serve-static"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/platform-e2e/**/*.{js,ts}"]
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": ["tsc -p tsconfig.json --noEmit"],
+        "cwd": "apps/platform-e2e"
+      }
+    }
+  },
+  "implicitDependencies": ["platform"],
+  "tags": []
+}

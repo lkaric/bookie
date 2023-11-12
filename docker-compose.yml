@@ -1,0 +1,19 @@
+version: '3.9'
+
+services:
+  db:
+    container_name: bookie_pg
+    image: postgres:16.0
+    restart: always
+    environment:
+      - POSTGRES_USER=unicorn
+      - POSTGRES_PASSWORD=topsecret
+      - POSTGRES_DB=bookie
+    ports:
+      - 5432:5432
+    volumes:
+      - bookie_pg:/var/lib/postgresql/data
+
+volumes:
+  bookie_pg:
+    driver: local

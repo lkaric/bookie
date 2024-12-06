@@ -1,0 +1,9 @@
+name: bookie-dev
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: ./apps/api/Dockerfile
+    ports:
+      - "3000:3000"

@@ -1,9 +1,19 @@
-name: bookie-dev
+name: bookie
 
 services:
-  api:
-    build:
-      context: .
-      dockerfile: ./apps/api/Dockerfile
+  db:
+    container_name: bookie_pg
+    image: postgres:latest
+    restart: always
+    environment:
+      - POSTGRES_USER=unicorn
+      - POSTGRES_PASSWORD=topsecret
+      - POSTGRES_DB=bookie
     ports:
-      - "3000:3000"
+      - 5432:5432
+    volumes:
+      - bookie_pg:/var/lib/postgresql/data
+
+volumes:
+  bookie_pg:
+    driver: local

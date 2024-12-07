@@ -1,3 +1,4 @@
+import { Multer } from 'multer';
 import helmet from 'helmet';
 import { ConfigService } from '@nestjs/config';
 import { Logger, ValidationPipe } from '@nestjs/common';

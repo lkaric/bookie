@@ -6,6 +6,9 @@ import { HealthModule } from './health';
 import { PrismaModule } from './prisma';
 import { IdentityModule } from './identity';
 import { RedisModule } from './redis';
+import { AttachmentModule } from './attachment';
+import { StatementModule } from './statement';
+import { AccountModule } from './account';
 
 @Module({
   imports: [
@@ -20,6 +23,9 @@ import { RedisModule } from './redis';
       },
     ]),
     IdentityModule,
+    AttachmentModule,
+    AccountModule,
+    StatementModule,
   ],
 })
 export class AppModule {}

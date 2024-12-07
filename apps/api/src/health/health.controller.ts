@@ -8,7 +8,9 @@ import {
 } from '@nestjs/terminus';
 
 import { PrismaService } from '../prisma';
+import { Public } from '../identity/decorators';
 
+@Public()
 @Controller('health')
 class HealthController {
   constructor(

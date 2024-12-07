@@ -8,8 +8,8 @@ datasource db {
 }
 
 model User {
-  id        String  @id @default(cuid())
-  email     String  @unique
+  id        String @id @default(cuid())
+  email     String @unique
   password  String
   firstName String
   lastName  String
@@ -19,4 +19,86 @@ model User {
   deletedAt DateTime?
 
   @@map("users")
+}
+
+model Account {
+  id         String      @id @default(cuid())
+  name       String
+  number     String
+  currency   String
+  statements Statement[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([number])
+  @@map("accounts")
+}
+
+model Statement {
+  id             String   @id @default(cuid())
+  internalId     String   @unique
+  internalNumber String
+  issueDate      DateTime
+  openingBalance Decimal
+  closingBalance Decimal
+
+  attachments  Attachment[]
+  transactions Transaction[]
+  account      Account       @relation(fields: [accountId], references: [id])
+  accountId    String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([internalId])
+  @@map("statements")
+}
+
+enum AttachmentType {
+  STATEMENT_PDF
+  STATEMENT_XML
+  OTHER
+}
+
+model Attachment {
+  id          String         @id @default(cuid())
+  name        String
+  bucket      String?
+  type        AttachmentType @default(OTHER)
+  description String?
+
+  statement     Statement?   @relation(fields: [statementId], references: [id])
+  statementId   String?
+  transaction   Transaction? @relation(fields: [transactionId], references: [id])
+  transactionId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("attachments")
+}
+
+model Transaction {
+  id                     String   @id @default(cuid())
+  reference              String   @unique
+  internalId             String?
+  client                 String
+  clientAccountNumber    String
+  clientModelNumber      String?
+  clientCallNumber       String?
+  place                  String?
+  amount                 Decimal
+  paymentCode            String
+  paymentCodeDescription String
+  date                   DateTime
+
+  statement   Statement?   @relation(fields: [statementId], references: [id])
+  statementId String?
+  attachments Attachment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("transactions")
 }

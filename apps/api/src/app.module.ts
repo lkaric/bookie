@@ -9,6 +9,7 @@ import { RedisModule } from './redis';
 import { AttachmentModule } from './attachment';
 import { StatementModule } from './statement';
 import { AccountModule } from './account';
+import { TransactionModule } from './transaction';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { AccountModule } from './account';
     AttachmentModule,
     AccountModule,
     StatementModule,
+    TransactionModule,
   ],
 })
 export class AppModule {}

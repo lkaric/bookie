@@ -79,9 +79,15 @@ model Attachment {
   @@map("attachments")
 }
 
+enum ReconciliationStatus {
+  PENDING
+  MATCHED
+  RECONCILED
+}
+
 model Transaction {
-  id                     String   @id @default(cuid())
-  reference              String   @unique
+  id                     String               @id @default(cuid())
+  reference              String               @unique
   internalId             String?
   client                 String
   clientAccountNumber    String
@@ -92,6 +98,7 @@ model Transaction {
   paymentCode            String
   paymentCodeDescription String
   date                   DateTime
+  status                 ReconciliationStatus @default(PENDING)
 
   statement   Statement?   @relation(fields: [statementId], references: [id])
   statementId String?

@@ -1,9 +1,8 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { getMonth, getYear } from 'date-fns';
 
-import { PrismaService } from '../prisma';
 import { RaiffeisenStatmentParserService } from './raiffeisen';
+import { PrismaService } from '../prisma';
 import { AttachmentService } from '../attachment';
 
 @Injectable()
@@ -19,36 +18,31 @@ class StatementService {
   async import(xml: Express.Multer.File, pdf?: Express.Multer.File) {
     try {
       const {
-        statement: { accountNumber, ...raw },
+        statement: { accountNumber, ...parsedStatement },
         transactions,
       } = this.raiffeisenStatementParserService.parse(xml.buffer);
 
-      const account = await this.prismaService.account.findFirstOrThrow({
+      const account = await this.prismaService.account.findFirst({
         where: { number: accountNumber },
       });
 
-      const data: Prisma.StatementCreateInput = {
-        ...raw,
-        account: { connect: account },
-      };
+      if (!account) {
+        throw new BadRequestException();
+      }
 
-      const [statement] = await this.prismaService.$transaction([
-        this.prismaService.statement.create({ data }),
-      ]);
+      const statement = await this.prismaService.statement.create({
+        data: {
+          ...parsedStatement,
+          account: { connect: account },
+          transactions: { createMany: { data: transactions } },
+        },
+      });
 
-      const bucket = `${getYear(raw.issueDate)}-${getMonth(raw.issueDate)}`;
+      const bucket = `${getYear(parsedStatement.issueDate)}-${getMonth(
+        parsedStatement.issueDate
+      )}`;
 
       await this.attachmentService.uploadStatement(xml, bucket, statement, pdf);
-
-      const transactionData: Array<Prisma.TransactionCreateManyInput> =
-        transactions.map((transaction) => ({
-          ...transaction,
-          statementId: statement.id,
-        }));
-
-      await this.prismaService.transaction.createMany({
-        data: transactionData,
-      });
 
       return statement;
     } catch (err) {
